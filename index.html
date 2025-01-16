@@ -5,22 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MVD BIO</title>
     <style>
-        body {
-            background-image: url('https://ooosinar.ru/image/cache/catalog/arpa/0700-550x550w.jpg');
-            background-size: 100% 100%;
-            background-position: center;
-            background-attachment: fixed;
-            color: #e0e0e0;
-            font-family: 'Ulm Grotesk Extrabold', sans-serif;
-            text-align: center;
-            padding: 10px;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+        @media (max-width: 768px) {
+            body {
+                background-image: url('https://ooosinar.ru/image/cache/catalog/arpa/0700-550x550w.jpg');
+                background-size: 100% 100%;
+                background-position: center;
+                background-attachment: fixed;
+                color: #e0e0e0;
+                font-family: 'Ulm Grotesk Extrabold', sans-serif;
+                text-align: center;
+                padding: 10px;
+                min-height: 100vh;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+            }
         }
-
+        
         header {
             margin-bottom: 20px;
             opacity: 0;
@@ -82,7 +84,7 @@
             opacity: 0;
             animation: fadeIn 1s 1s forwards; /* Задержка для футера */
         }
-
+        
         @keyframes fadeIn {
             to {
                 opacity: 1;
