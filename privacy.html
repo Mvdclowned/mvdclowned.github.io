@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Правила пользования и конфиденциальность</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Courier New', monospace;
+            background-color: #0a0a0a;
+            color: #b3b3b3;
+            overflow-x: hidden;
+        }
+        
+        .matrix-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.15;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 1px solid #333;
+        }
+        
+        h1, h2, h3 {
+            color: #808080;
+            text-shadow: 0 0 5px #666666;
+        }
+        
+        .glitch-text {
+            position: relative;
+            animation: glitch 3s infinite;
+        }
+        
+        @keyframes glitch {
+            0% { transform: none; opacity: 1; }
+            7% { transform: skew(-0.5deg, -0.9deg); opacity: 0.75; }
+            10% { transform: none; opacity: 1; }
+            27% { transform: none; opacity: 1; }
+            30% { transform: skew(0.8deg, -0.1deg); opacity: 0.75; }
+            35% { transform: none; opacity: 1; }
+            52% { transform: none; opacity: 1; }
+            55% { transform: skew(-1deg, 0.2deg); opacity: 0.75; }
+            50% { transform: none; opacity: 1; }
+            72% { transform: none; opacity: 1; }
+            75% { transform: skew(0.4deg, 1deg); opacity: 0.75; }
+            80% { transform: none; opacity: 1; }
+            100% { transform: none; opacity: 1; }
+        }
+        
+        .typing-text {
+            overflow: hidden;
+            border-right: 2px solid #666666;
+            white-space: nowrap;
+            margin: 0 auto;
+            letter-spacing: 2px;
+            animation: typing 3.5s steps(40, end) forwards, blink-caret 0.75s step-end infinite;
+            width: 0;
+            display: inline-block;
+        }
+        
+        @keyframes typing {
+            from { width: 0 }
+            to { width: 100% }
+        }
+        
+        @keyframes blink-caret {
+            from, to { border-color: transparent }
+            50% { border-color: #666666 }
+        }
+        
+        .buttons {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+        }
+        
+        .buttons a {
+            margin: 0 15px;
+            color: #808080;
+            text-decoration: none;
+            padding: 10px 20px;
+            border: 1px solid #666666;
+            transition: all 0.3s;
+        }
+        
+        .buttons a:hover {
+            background-color: #808080;
+            color: #0a0a0a;
+            box-shadow: 0 0 10px #666666;
+        }
+        
+        .privacy-content {
+            background-color: rgba(30, 30, 30, 0.8);
+            padding: 20px;
+            border: 1px solid #4d4d4d;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <canvas class="matrix-bg" id="matrix"></canvas>
+    
+    <div class="container">
+        <header>
+            <h1 class="glitch-text">Правила пользования и конфиденциальность</h1>
+        </header>
+        
+        <div class="privacy-content">
+            <h2>Конфиденциальность</h2>
+            <p>
+                На этом сайте собираются не точные геоданные для сбора статистики по посещаемости. 
+                Эти данные используются исключительно для анализа и улучшения работы сайта. 
+                Мы не передаем ваши данные третьим лицам и не используем их для рекламных целей.
+            </p>
+        </div>
+        
+        <div class="buttons">
+            <a href="https://www.google.com" target="_blank">Отклонить</a>
+            <a href="index.html">Принять</a>
+        </div>
+    </div>
+    
+    <script>
+        const canvas = document.getElementById('matrix');
+        const ctx = canvas.getContext('2d');
+        
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        const katakana = 'アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブヅプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴッン';
+        const latin = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        const nums = '0123456789';
+        const cyrillic = 'АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ';
+        
+        const alphabet = katakana + latin + nums + cyrillic;
+        
+        const fontSize = 16;
+        const columns = canvas.width / fontSize;
+        
+        const rainDrops = [];
+        
+        for (let x = 0; x < columns; x++) {
+            rainDrops[x] = 1;
+        }
+        
+        const draw = () => {
+            ctx.fillStyle = 'rgba(18, 18, 18, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.fillStyle = '#666666';
+            ctx.font = fontSize + 'px monospace';
+            
+            for (let i = 0; i < rainDrops.length; i++) {
+                const text = alphabet.charAt(Math.floor(Math.random() * alphabet.length));
+                ctx.fillText(text, i * fontSize, rainDrops[i] * fontSize);
+                
+                if (rainDrops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                    rainDrops[i] = 0;
+                }
+                rainDrops[i]++;
+            }
+        };
+        
+        setInterval(draw, 30);
+    </script>
+</body>
+</html> 
