@@ -203,7 +203,6 @@
             100% { transform: translateY(100vh); }
         }
         
-        /* Добавление адаптивности для мобильных устройств */
         @media (max-width: 600px) {
             nav {
                 flex-direction: column;
@@ -261,10 +260,139 @@
                 font-size: 13px;
             }
         }
+        
+
+        .crt-effect {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1001;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 2px, 3px 100%;
+            animation: flicker 0.15s infinite;
+        }
+        
+        .crt-effect::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(18, 16, 16, 0.1);
+            opacity: 0;
+            z-index: 1002;
+            pointer-events: none;
+            animation: flicker 0.15s infinite;
+        }
+        
+        .crt-effect::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+            background-size: 100% 2px;
+            pointer-events: none;
+        }
+        
+        @keyframes flicker {
+            0% { opacity: 0.27861; }
+            5% { opacity: 0.34769; }
+            10% { opacity: 0.23604; }
+            15% { opacity: 0.90626; }
+            20% { opacity: 0.18128; }
+            25% { opacity: 0.83891; }
+            30% { opacity: 0.65583; }
+            35% { opacity: 0.67807; }
+            40% { opacity: 0.26559; }
+            45% { opacity: 0.84693; }
+            50% { opacity: 0.96019; }
+            55% { opacity: 0.08594; }
+            60% { opacity: 0.20313; }
+            65% { opacity: 0.71988; }
+            70% { opacity: 0.53455; }
+            75% { opacity: 0.37288; }
+            80% { opacity: 0.71428; }
+            85% { opacity: 0.70419; }
+            90% { opacity: 0.7003; }
+            95% { opacity: 0.36108; }
+            100% { opacity: 0.24387; }
+        }
+        
+        .page.decrypting {
+            animation: decrypt 1.2s ease-in-out;
+            overflow: hidden;
+        }
+        
+        .page.encrypting {
+            animation: encrypt 0.8s ease-in-out;
+            overflow: hidden;
+        }
+        
+        @keyframes decrypt {
+            0% {
+                clip-path: inset(0 0 100% 0);
+                filter: blur(10px) brightness(0.5);
+                letter-spacing: 20px;
+                opacity: 0;
+            }
+            50% {
+                clip-path: inset(0 0 0 0);
+                filter: blur(5px) brightness(0.75);
+                letter-spacing: 5px;
+                opacity: 0.5;
+            }
+            100% {
+                clip-path: inset(0 0 0 0);
+                filter: blur(0) brightness(1);
+                letter-spacing: normal;
+                opacity: 1;
+            }
+        }
+        
+        @keyframes encrypt {
+            0% {
+                clip-path: inset(0 0 0 0);
+                filter: blur(0) brightness(1);
+                letter-spacing: normal;
+                opacity: 1;
+            }
+            100% {
+                clip-path: inset(0 0 100% 0);
+                filter: blur(10px) brightness(0.5);
+                letter-spacing: 20px;
+                opacity: 0;
+            }
+        }
+        
+        .scan-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: rgba(57, 255, 20, 0.3);
+            box-shadow: 0 0 10px rgba(57, 255, 20, 0.5);
+            z-index: 1000;
+            pointer-events: none;
+            animation: scan 3s linear infinite;
+        }
+        
+        @keyframes scan {
+            0% { top: 0; }
+            100% { top: 100%; }
+        }
     </style>
 </head>
 <body>
     <canvas class="matrix-bg" id="matrix"></canvas>
+    <div class="crt-effect"></div>
     
     <div class="container">
         <header>
@@ -656,4 +784,4 @@
         window.addEventListener('load', calculateTypingDuration);
     </script>
 </body>
-</html
+</html>
