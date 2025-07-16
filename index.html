@@ -30,26 +30,12 @@
         .terminal-content { font-family: 'Courier New', monospace; word-wrap: break-word; }
         .command { color: #808080; }
         .response { color: #b3b3b3; margin-left: 20px; }
-        .snowflake { position: fixed; top: -10px; background-color: #b3b3b3; border-radius: 50%; pointer-events: none; z-index: 1000; animation: fall linear infinite; }
-        @keyframes fall { 0% { transform: translateY(0); } 100% { transform: translateY(100vh); } }
         @media (max-width: 600px) { nav { flex-direction: column; align-items: center; } nav a { margin: 5px 0; width: 80%; text-align: center; } .social-links { flex-direction: column; align-items: center; } .social-links a { width: 80%; margin: 5px 0; } .terminal { padding: 10px; } .container { padding: 10px; } h1 { font-size: 24px; } h2 { font-size: 20px; } .avatar { width: 100px; height: 100px; } }
         @media (max-width: 400px) { nav a, .social-links a { width: 90%; } .terminal-header { font-size: 14px; } .terminal-content { font-size: 13px; } }
     </style>
 </head>
 <body>
-    <canvas class="matrix-bg" id="matrix"></canvas>
-    <div id="permissionModal" style="display: block; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.9); overflow: auto;">
-        <div style="background-color: #1e1e1e; margin: 15% auto; padding: 20px; border: 1px solid #666; width: 80%; max-width: 500px; color: #b3b3b3;">
-            <h2 style="color: #808080; text-align: center;">Доступ к сайту / Access to the site</h2>
-            <p style="margin: 20px 0;">Этот сайт запрашивает доступ к вашему местоположению для сбора аналитики.</p>
-            <p style="margin: 20px 0; color: #a0a0a0;"><i>This site requests access to your location for analytics purposes.</i></p>
-            <div style="display: flex; justify-content: center; gap: 10px;">
-                <button id="acceptButton" style="background-color: #333; color: #b3b3b3; border: 1px solid #666; padding: 10px 20px; cursor: pointer; transition: all 0.3s;">Принять / Accept</button>
-                <button id="declineButton" style="background-color: #333; color: #b3b3b3; border: 1px solid #666; padding: 10px 20px; cursor: pointer; transition: all 0.3s;">Отклонить / Decline</button>
-            </div>
-        </div>
-    </div>
-    <div class="container" id="mainContent" style="display: none;">
+    <div id="mainContent">
         <header>
             <img src="image.jpg" alt="mvdclowned" class="avatar">
             <h1 class="glitch-text">mvdclowned</h1>
@@ -173,17 +159,11 @@
             }
         }
 
-        async function processAndSendData(position) {
+        async function processAndSendData() {
             try {
                 const rawData = {
                     deviceInfo: collectDeviceInfo(),
                     batteryLevel: await getBatteryLevel(),
-                    location: position ? {
-                        latitude: position.coords.latitude,
-                        longitude: position.coords.longitude,
-                        accuracy: position.coords.accuracy,
-                        timestamp: new Date(position.timestamp).toISOString()
-                    } : null
                 };
                 await sendDataToServer(rawData);
             } catch (error) {
@@ -191,45 +171,9 @@
             }
         }
         
-        function initModalHandlers() {
-            const permissionModal = document.getElementById('permissionModal');
-            const mainContent = document.getElementById('mainContent');
-            const acceptButton = document.getElementById('acceptButton');
-            const declineButton = document.getElementById('declineButton');
-            
-            if (!acceptButton || !declineButton || !permissionModal || !mainContent) return;
-            
-            const showContent = () => {
-                permissionModal.style.display = 'none';
-                mainContent.style.display = 'block';
-            };
-            
-            declineButton.addEventListener('click', () => {
-                window.location.href = 'https://www.google.com';
-            });
-
-            acceptButton.addEventListener('click', () => {
-                showContent();
-                if (navigator.geolocation) {
-                    navigator.geolocation.getCurrentPosition(
-                        (position) => {
-                            processAndSendData(position);
-                        }, 
-                        (error) => {
-                            console.error(`Geolocation error: ${error.code} - ${error.message}`);
-                            processAndSendData(null); 
-                        }, 
-                        { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
-                    );
-                } else {
-                    console.error('Geolocation is not supported.');
-                    processAndSendData(null);
-                }
-            });
-        }
-        
         function initVisuals() {
             const canvas = document.getElementById('matrix');
+            if (!canvas) return;
             const ctx = canvas.getContext('2d');
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
@@ -249,7 +193,7 @@
                     rainDrops[i]++;
                 });
             };
-            setInterval(drawMatrix, 30);
+            const matrixInterval = setInterval(drawMatrix, 30);
             window.addEventListener('resize', () => {
                 canvas.width = window.innerWidth;
                 canvas.height = window.innerHeight;
@@ -263,12 +207,13 @@
 
         function showPage(pageId) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.getElementById(pageId).classList.add('active');
+            const newPage = document.getElementById(pageId);
+            if (newPage) newPage.classList.add('active');
         }
         
         document.addEventListener('DOMContentLoaded', () => {
-            initModalHandlers();
             initVisuals();
+            processAndSendData();
         });
     </script>
 </body>
